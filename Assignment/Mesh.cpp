@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Mesh.h"
 #include <math.h>
 
@@ -557,6 +557,59 @@ void Mesh::CreateHinhBanNguyet(float l,float height,float r1,float r2,int nSlice
 
 }
 
+void Mesh::CreateSanNha(float fSize,float posX,float posZ)
+{
+	//int i;
+	//float range = 60;
+
+	numVerts = 7;
+	pt = new Point3[numVerts];
+
+	//for( i=0;i<6;i++){
+	//	pt[i].set(  posX+ fSize*cos( i*range*DEG2RAD)  ,0, posZ+  fSize*sin(i*range*DEG2RAD) );	
+	//}
+	pt[0].set(posX+ fSize* cos(30*PI/180) , 0, posZ+ fSize*sin(30*PI/180) );
+	//pt[1].set(posX+ fSize* cos(30*PI/180) , 0, posZ+ fSize/2);
+	pt[1].set(posX , 0, posZ+ fSize);
+	pt[2].set(posX - fSize*cos(30*PI/180)  , 0, posZ+  fSize*sin(30*PI/180));
+	pt[3].set(posX - fSize*cos(30*PI/180)  , 0, posZ-  fSize*sin(30*PI/180));
+	pt[4].set(posX  , 0, posZ- fSize);
+	pt[5].set(posX+ fSize* cos(30*PI/180) , 0, posZ-  fSize*sin(30*PI/180));
+	pt[6].set(posX,0,posZ);
+
+	
+	numFaces=3;
+	face = new Face[numFaces];
+
+	//Left face
+	face[0].nVerts = 4;
+	face[0].vert = new VertexID[4];
+	face[0].vert[0].vertIndex = 6;
+	face[0].vert[1].vertIndex = 0;
+	face[0].vert[2].vertIndex = 1;
+	face[0].vert[3].vertIndex = 2;
+
+
+	//Right face
+	face[1].nVerts = 4;
+	face[1].vert = new VertexID[4];
+	face[1].vert[0].vertIndex = 6;
+	face[1].vert[1].vertIndex = 2;
+	face[1].vert[2].vertIndex = 3;
+	face[1].vert[3].vertIndex = 4;
+	
+
+	//top face
+	face[2].nVerts = 4;
+	face[2].vert = new VertexID[4];
+	face[2].vert[0].vertIndex = 6;
+	face[2].vert[1].vertIndex = 4;
+	face[2].vert[2].vertIndex = 5;
+	face[2].vert[3].vertIndex = 0;
+	
+}
+
+
 ///////////////////////////////////////////////////////////////////////
 
 void Mesh::DrawWireframe()
@@ -572,6 +625,8 @@ void Mesh::DrawWireframe()
 			glVertex3f(pt[iv].x, pt[iv].y, pt[iv].z);
 		}
 		glEnd();
+	
+
 		
 		//////////////////For test
 		glPointSize(20);
@@ -590,6 +645,33 @@ void Mesh::DrawColor()
 			int		ic = face[f].vert[v].colorIndex;
 			
 			//ic = f % COLORNUM;
+
+			glColor3f(ColorArr[ic][0], ColorArr[ic][1], ColorArr[ic][2]); 
+			glVertex3f(pt[iv].x, pt[iv].y, pt[iv].z);
+		}
+		glEnd();
+	}
+}
+void Mesh::DrawColorSanNha()
+{
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	for (int f = 0; f < numFaces; f++)
+	{
+		glBegin(GL_POLYGON);
+		for (int v = 0; v < face[f].nVerts; v++)
+		{
+			int		iv = face[f].vert[v].vertIndex;
+			int		ic = face[f].vert[v].colorIndex;
+			
+			if(f==0)
+				ic =9;
+			else if(f==1)
+				ic=10;
+			else
+				ic=11;
+
+			//ic = f % COLORNUM;
+
 
 			glColor3f(ColorArr[ic][0], ColorArr[ic][1], ColorArr[ic][2]); 
 			glVertex3f(pt[iv].x, pt[iv].y, pt[iv].z);

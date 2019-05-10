@@ -74,18 +74,21 @@ public:
 	void SetColor(int colorIdx) ;
 	void DrawWireframe();
 	void DrawColor();
+	void DrawColorSanNha();
 
 	void CreateCuboid(float fSizeX, float fSizeY, float fSizeZ);
 
 	void CreateHinhTru(float H,float R,int nSlices);
 
-	void Mesh::CreateBienTheHinhTru(float D1,float D2,float L1,float L2,float L3,int n);
+	void CreateBienTheHinhTru(float D1,float D2,float L1,float L2,float L3,int n);
 
 	void CreateHinhOvan(float d,float h,float r1,float r2,int n);
 
 	void CreateHinhBanNguyet(float h,float w,float r1,float r2,float n);
 
 	void CreateHinhBanNguyet(float l,float height,float r1,float r2,int nSlice);
+
+	void CreateSanNha(float size,float posX,float Z);
 };
 
 #endif

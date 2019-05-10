@@ -18,7 +18,7 @@ float camera_X, camera_Y, camera_Z;
 float lookAt_X, lookAt_Y, lookAt_Z;
 //float gocxoayY;
 
-bool	b4View = false;
+bool	viewB4 = false;
 
 int		screenWidth = 600;
 int		screenHeight= 600;
@@ -91,6 +91,10 @@ Mesh	cclk;
 Mesh	thanhtruot1;
 Mesh	thanhtruot2;
 Mesh	chot;
+Mesh	sannha;
+Mesh *p_sannha = new Mesh[600];
+int dv =0;
+float R_floor = 1;
 
 
 float Rnho =0.3;
@@ -100,12 +104,12 @@ bool ct = false;
 
 void mySpecialKey(int theKey, int x, int y) {
 	if (theKey == GLUT_KEY_RIGHT) {
-		camera_angle -= 1;
+		camera_angle -= 0.1;
 		if (camera_angle < 0)
 			camera_angle += 360;
 	}
 	else if (theKey == GLUT_KEY_LEFT) {
-		camera_angle += 1;
+		camera_angle += 0.1;
 		if (camera_angle > 360)
 			camera_angle -= 360;
 	}
@@ -431,24 +435,27 @@ void drawChot(){
 }
 
 void drawSanNha(){
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1,0,0);
-	glBegin(GL_POLYGON);
-		glVertex3f(-2, 0,-2);
-		glVertex3f(-2, 0,2);
-		glVertex3f(2, 0,2);
-		glVertex3f(2, 0,-2);
-	glEnd();
-	glColor3f(0,1,0);
-	glBegin(GL_POLYGON);
-		glVertex3f(0, 0,-2);
-		glVertex3f(0, 0,2);
-		glVertex3f(2, 0,2);
-		glVertex3f(2, 0,-2);
-	glEnd();
-	glFlush();
+
+	glPushMatrix();
+	
+	//glRotatef(90 , 0, 1, 0);
+	//glTranslated( 0,0, 0);
+
+	if(bWireFrame)
+		
+		for(int i =0 ;i<dv;i++){
+			p_sannha[i].DrawWireframe();
+		}
+	
+	else
+
+		for(int i =0 ;i<dv;i++){
+			p_sannha[i].DrawColorSanNha();
+		}
 
 
+	glPopMatrix();
+	
 }
 
 void mySetupCameraVolume(int nType)
@@ -469,29 +476,26 @@ void mySetupCameraVolume(int nType)
 	}
 
 }
-void changeCameraPos()
-{
-	camera_Y = camera_height;
-	camera_X = camera_dis * cos(camera_angle);
-	camera_Z = camera_dis * sin(camera_angle);
-}
-void DisplayOneView(int nType, int left, int right, int top, int bottom)
+
+void DisplayView(int nType, int left, int right, int top, int bottom)
 {
 	mySetupCameraVolume(nType);
 	glViewport(left, top, right - left, bottom - top);
 
-	changeCameraPos();
+	camera_Y = camera_height;
+	camera_X = camera_dis * cos(camera_angle);
+	camera_Z = camera_dis * sin(camera_angle);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	if (nType == 1)
-		gluLookAt(0, camera_dis, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-	else if (nType == 2)
-		gluLookAt(0, 0.0, camera_dis, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	else if (nType == 3)
-		gluLookAt(camera_dis, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	else
+	//if (nType == 1)
+	//	gluLookAt(0, camera_dis, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+	//else if (nType == 2)
+	//	gluLookAt(0, 0.0, camera_dis, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	//else if (nType == 3)
+	//	gluLookAt(camera_dis, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	//else
 		gluLookAt(camera_X, camera_Y, camera_Z, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 }
 
@@ -501,21 +505,17 @@ void myDisplay()
 	glLoadIdentity();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 
-	if (!b4View)
-		DisplayOneView(4, 0, screenWidth, 0, screenHeight);
-	else {
+	if (!viewB4)
+		DisplayView(4, 0, screenWidth, 0, screenHeight);
+	/*else {
 		DisplayOneView(1, 0, screenWidth / 2, 0, screenHeight / 2);
 		DisplayOneView(2, 0, screenWidth / 2, screenHeight / 2, screenHeight);
 		DisplayOneView(3, screenWidth / 2, screenWidth, screenHeight / 2, screenHeight);
 		DisplayOneView(4, screenWidth / 2, screenWidth, 0, screenHeight / 2);
-	}
-	
-
-	
+	}*/
 	
 	
 	drawAxis();
-	drawSanNha();
 	drawDeDuoi();
 	drawDeTren();
 	drawXylanh();
@@ -529,6 +529,9 @@ void myDisplay()
 	drawThanhTruot1();
 	drawThanhTruot2();
 	drawChot();
+
+	drawSanNha();
+	
 	
 	glFlush();
     glutSwapBuffers();
@@ -602,6 +605,57 @@ int _tmain(int argc, _TCHAR* argv[])
 	chot.SetColor(2);
 
 
+	
+	for(int i =-10 ;i< 10;i++){
+		p_sannha[dv].CreateSanNha(R_floor,i*2*cos(30*PI/180),-6*R_floor);
+		dv++;
+	}
+	for(int i =-10 ;i< 10;i++){
+		p_sannha[dv].CreateSanNha(R_floor,i*2*cos(30*PI/180),-3*R_floor);
+		dv++;
+	}
+	for(int i =-10 ;i< 10;i++){
+		//p_sannha[0].CreateSanNha(1,0,0);
+		p_sannha[dv].CreateSanNha(R_floor,i*2*cos(30*PI/180),0);
+		dv++;
+		
+	}
+	for(int i =-10 ;i< 10;i++){
+		p_sannha[dv].CreateSanNha(R_floor,i*2*cos(30*PI/180),3*R_floor);
+		dv++;
+	}
+	for(int i =-10 ;i< 10;i++){
+		p_sannha[dv].CreateSanNha(R_floor,i*2*cos(30*PI/180),6*R_floor);
+		dv++;
+	}
+
+	for(int i =-10 ;i< 10;i++){
+		p_sannha[dv].CreateSanNha(R_floor,cos(30*PI/180) * i*2 - cos(30*PI/180),  3*R_floor/2);
+		dv++;
+	}
+
+	for(int i =-10 ;i< 10;i++){
+		p_sannha[dv].CreateSanNha(R_floor,cos(30*PI/180) * i*2 - cos(30*PI/180),  3*R_floor/2 + 3*R_floor);
+		dv++;
+
+	}
+	for(int i =-10 ;i< 10;i++){
+		p_sannha[dv].CreateSanNha(R_floor,cos(30*PI/180) * i*2 - cos(30*PI/180),  3*R_floor/2 + 6*R_floor);
+		dv++;
+
+	}
+
+	for(int i =-10 ;i< 10;i++){
+		p_sannha[dv].CreateSanNha(R_floor,cos(30*PI/180) * i*2 - cos(30*PI/180),  3*R_floor/2 - 3*R_floor);
+		dv++;
+
+	}
+	for(int i =-10 ;i< 10;i++){
+		p_sannha[dv].CreateSanNha(R_floor,cos(30*PI/180) * i*2 - cos(30*PI/180),  3*R_floor/2 - 6*R_floor);
+		dv++;
+
+	}
+	
 
 	myInit();
 
