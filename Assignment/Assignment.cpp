@@ -1,4 +1,4 @@
-
+﻿
 #include "stdafx.h"
 
 #include <math.h>
@@ -11,11 +11,12 @@ using namespace std;
 #define PI			3.1415926
 
 // Camera
-float camera_angle;
+float camera_angle ;
 float camera_height;
 float camera_dis;
 float camera_X, camera_Y, camera_Z;
 float lookAt_X, lookAt_Y, lookAt_Z;
+//float gocxoayY;
 
 bool	b4View = false;
 
@@ -48,7 +49,6 @@ float giadobnRadius1 =0.08;
 float giadobnRadius2 = 0.15;
 float giadobnWidth = 0.23;
 
-
 float cclkHeight = 0.2;
 float cclkRadius1 =0.12;
 float cclkRadius2 =0.3;
@@ -69,8 +69,6 @@ float chotRadius2 =0.08 ;
 float chotLength1 =  0.3;
 float chotLength2 = 0.05;
 float chotLength3 = 0;
-
-
 
 
 float	cylinderRadius = 0.4;
@@ -94,11 +92,10 @@ Mesh	thanhtruot1;
 Mesh	thanhtruot2;
 Mesh	chot;
 
-float   translate_1 = 0.0f;
-float	translate_2 = 0.0f;
 
-bool	flag_1 = true;
-bool	flag_2 = true;
+float Rnho =0.3;
+float chieuX= -Rnho,chieuZ = 0; // khoi tao vi tri ban dau 
+bool ct = false; 
 
 
 void mySpecialKey(int theKey, int x, int y) {
@@ -120,8 +117,21 @@ void mySpecialKey(int theKey, int x, int y) {
 	}
 	glutPostRedisplay();
 }
+void FlagCartoon(int t){
+		rotor.rotateY += 5;
+		chieuX = -Rnho*  cos( rotor.rotateY*PI/180 );
+		chieuZ = Rnho* sin(rotor.rotateY*PI/180);
+			
+		if(rotor.rotateY > 360)
+			rotor.rotateY -=360;
+	glutPostRedisplay();
+	if (ct)
+		glutTimerFunc(55, FlagCartoon, 0);
+	
+}
 void myKeyboard(unsigned char key, int x, int y)
 {
+
 	float	fRInc;
 	float	fAngle;
     switch(key)
@@ -157,39 +167,46 @@ void myKeyboard(unsigned char key, int x, int y)
 			cylinderOffset=0;
 		break;
 	case '7':
-			//translate_1 +=0.006;
-			rotor.rotateY += 3;
+			
+			rotor.rotateY += 5;
+			chieuX = -Rnho*  cos( rotor.rotateY*PI/180 );
+			chieuZ = Rnho* sin(rotor.rotateY*PI/180);
+			
 			if(rotor.rotateY > 360)
 				rotor.rotateY -=360;
-			if(flag_1){
-				translate_1 += 0.01102;
-				if(translate_1 > 0.32)
-					flag_1= false;
-			}else{
-				translate_1 -= 0.01102;
-				if(translate_1 < -0.32)
-					flag_1 = true;	
-			}
+
+
 			break;
 	case '8':
-			rotor.rotateY -= 3;
-			if(rotor.rotateY < 0)
-				rotor.rotateY +=360;
-			if(flag_2){
-				translate_1 -= 0.01102;
-				if(translate_1 <- 0.32)
-					flag_2= false;
-			}else{
-				translate_1 += 0.01102;
-				if(translate_1 > 0.32)
-					flag_2 = true;	
-			}
+			rotor.rotateY -= 5;
+			chieuX = -Rnho*  cos( rotor.rotateY*PI/180 );
+			chieuZ = Rnho* sin(rotor.rotateY*PI/180);
+			
+			if(rotor.rotateY <0 )
+				rotor.rotateY =360;
+			
+		break;
+	case 'A':
+	case 'a':
+		ct = !ct;
+		if (ct)
+			glutTimerFunc(10, FlagCartoon, 0);
+		
+		
+
 		break;
 	case 'w':
 	case 'W':
 		bWireFrame = !bWireFrame;
 		break;
+	case '+':
+		camera_dis +=0.5;
+		break;
+	case '-':
+		camera_dis -= 0.5;		
+		break;
 	}
+
     glutPostRedisplay();
 }
 
@@ -330,7 +347,6 @@ void drawGiaDo2BN(){
 	glPopMatrix();
 }
 
-
 void drawRotor()
 {
 	glPushMatrix();
@@ -350,8 +366,9 @@ void drawRotor()
 void drawCoCauLienKet()
 {
 	glPushMatrix();
+	//	glTranslated(Rnho,0, 0);
 		glRotatef(deduoi.rotateY + xylanh.rotateY , 0, 1, 0);
-		glTranslated(translate_1,rotorHeight + bandoHeight+ deduoiHeight + xylanhHeight+cylinderOffset, 0);
+		glTranslated(chieuX,rotorHeight + bandoHeight+ deduoiHeight + xylanhHeight+cylinderOffset, 0);
 		
 		glRotatef(90  , 0, 1, 0);
 
@@ -365,8 +382,9 @@ void drawCoCauLienKet()
 
 void drawThanhTruot1(){
 	glPushMatrix();
+	
 	glRotatef(deduoi.rotateY + xylanh.rotateY , 0, 1, 0);
-	glTranslated(0+2.4+ translate_1 ,giadoHeight + giadobnWidth+ (giadobnRadius2 - giadobnRadius1) + bandoHeight+ deduoiHeight + xylanhHeight+cylinderOffset, 0);
+	glTranslated(2.4+chieuX ,giadoHeight + giadobnWidth+ (giadobnRadius2 - giadobnRadius1) + bandoHeight+ deduoiHeight + xylanhHeight+cylinderOffset, 0);
 
 	glRotatef(90 , 0, 0, 1);
 
@@ -380,8 +398,9 @@ void drawThanhTruot1(){
 
 void drawThanhTruot2(){
 	glPushMatrix();
+
 	glRotatef(deduoi.rotateY + xylanh.rotateY , 0, 1, 0);
-	glTranslated(0-2.4+translate_1,giadoHeight + giadobnWidth+ (giadobnRadius2 - giadobnRadius1) + bandoHeight+ deduoiHeight + xylanhHeight+cylinderOffset, 0);
+	glTranslated(-2.4+chieuX,giadoHeight + giadobnWidth+ (giadobnRadius2 - giadobnRadius1) + bandoHeight+ deduoiHeight + xylanhHeight+cylinderOffset, 0);
 
 	glRotatef(-90, 0, 0, 1);
 
@@ -394,13 +413,16 @@ void drawThanhTruot2(){
 }
 
 void drawChot(){
+	
 	glPushMatrix();
-	glRotatef(deduoi.rotateY + xylanh.rotateY + rotor.rotateY , 0, 1, 0);
-	glTranslated(0,rotorHeight + bandoHeight+ deduoiHeight + xylanhHeight+cylinderOffset, 0.28);
+	
 
-//	glRotatef(-90 , 0, 0, 1);
+	glRotatef(deduoi.rotateY + xylanh.rotateY  , 0, 1, 0);
+	glTranslated( chieuX,rotorHeight + bandoHeight+ deduoiHeight + xylanhHeight+cylinderOffset, chieuZ);
+
 
 	if(bWireFrame)
+		
 		chot.DrawWireframe();
 	else
 		chot.DrawColor();
@@ -408,21 +430,92 @@ void drawChot(){
 	glPopMatrix();
 }
 
+void drawSanNha(){
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1,0,0);
+	glBegin(GL_POLYGON);
+		glVertex3f(-2, 0,-2);
+		glVertex3f(-2, 0,2);
+		glVertex3f(2, 0,2);
+		glVertex3f(2, 0,-2);
+	glEnd();
+	glColor3f(0,1,0);
+	glBegin(GL_POLYGON);
+		glVertex3f(0, 0,-2);
+		glVertex3f(0, 0,2);
+		glVertex3f(2, 0,2);
+		glVertex3f(2, 0,-2);
+	glEnd();
+	glFlush();
+
+
+}
+
+void mySetupCameraVolume(int nType)
+{
+	if (nType == 4)
+	{
+		glMatrixMode(GL_PROJECTION);			// set projection matrix current matrix
+		glLoadIdentity();						// reset projection matrix
+
+												// calculate aspect ratio of window
+		gluPerspective(60.0f, (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 1000.0f);
+	}
+	else
+	{
+		glMatrixMode(GL_PROJECTION);			// set projection matrix current matrix
+		glLoadIdentity();						// reset projection matrix
+		glOrtho(-5, 5, -5, 5, -1000, 1000);
+	}
+
+}
+void changeCameraPos()
+{
+	camera_Y = camera_height;
+	camera_X = camera_dis * cos(camera_angle);
+	camera_Z = camera_dis * sin(camera_angle);
+}
+void DisplayOneView(int nType, int left, int right, int top, int bottom)
+{
+	mySetupCameraVolume(nType);
+	glViewport(left, top, right - left, bottom - top);
+
+	changeCameraPos();
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	if (nType == 1)
+		gluLookAt(0, camera_dis, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+	else if (nType == 2)
+		gluLookAt(0, 0.0, camera_dis, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	else if (nType == 3)
+		gluLookAt(camera_dis, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	else
+		gluLookAt(camera_X, camera_Y, camera_Z, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+}
+
 void myDisplay()
 {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	float x = camera_dis * cos(PI/180 * camera_angle);
-	float y = camera_height;
-	float z = camera_dis * sin(PI/180 * camera_angle);
-	gluLookAt(x, y, z, lookAt_X, lookAt_Y, lookAt_Z, 0, 1, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
+
+	if (!b4View)
+		DisplayOneView(4, 0, screenWidth, 0, screenHeight);
+	else {
+		DisplayOneView(1, 0, screenWidth / 2, 0, screenHeight / 2);
+		DisplayOneView(2, 0, screenWidth / 2, screenHeight / 2, screenHeight);
+		DisplayOneView(3, screenWidth / 2, screenWidth, screenHeight / 2, screenHeight);
+		DisplayOneView(4, screenWidth / 2, screenWidth, 0, screenHeight / 2);
+	}
 	
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
-	glViewport(0, 0, screenWidth, screenHeight);
+	
+	
 	
 	drawAxis();
-
+	drawSanNha();
 	drawDeDuoi();
 	drawDeTren();
 	drawXylanh();
@@ -469,7 +562,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	glutInitDisplayMode(GLUT_DOUBLE |GLUT_RGB | GLUT_DEPTH);//set the display mode
 	glutInitWindowSize(screenWidth, screenHeight); //set window size
 	glutInitWindowPosition(100, 100); // set window position on screen
-	glutCreateWindow("Lab 3 - Demo (2018-2019)"); // open the screen window
+	glutCreateWindow("Le Van Chi - 1510289"); // open the screen window
 
 	deduoi.CreateHinhTru(deduoiHeight, deduoiRadius,deSlices);
 	deduoi.SetColor(2);
